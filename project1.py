@@ -25,7 +25,20 @@ def extract_dictionary(df):
         iterating over all words in each review in the dataframe df
     """
     word_dict = {}
-    # TODO: Implement this function
+    for index, row in df.iterrows():
+        text = row['reviewText']
+        for element in text:
+            text = text.replace(element, element.lower())
+            if element in (string.punctuation):
+                text = text.replace(element, " ")
+    split_words = text.split()
+
+    idx = 0
+    for word in split_words:
+        if word not in word_dict:
+            word_dict[word] = idx
+            idx += 1
+
     return word_dict
 
 
