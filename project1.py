@@ -12,7 +12,12 @@ from sklearn import metrics
 from matplotlib import pyplot as plt
 
 from helper import *
-
+def clean_string(text):
+    for element in text:
+        text = text.replace(element, element.lower())
+        if element in (string.punctuation):
+            text = text.replace(element, " ")
+    return text.split()
 def extract_dictionary(df):
     """
     Reads a pandas dataframe, and returns a dictionary of distinct words
@@ -58,7 +63,20 @@ def generate_feature_matrix(df, word_dict):
     number_of_reviews = df.shape[0]
     number_of_words = len(word_dict)
     feature_matrix = np.zeros((number_of_reviews, number_of_words))
-    # TODO: Implement this function
+    idx = 0
+    for index, row in df.iterrows():
+        empty_list = []
+        text = row['reviewText']
+        cleaned_list = set(clean_string(text))
+        for word in word_dict:
+            if word in cleaned_list:
+                empty_list.append(1)
+            else:
+                empty_list.append(0)
+        a = np.array(empty_list)
+        feature_matrix[idx] = a
+        idx += 1
+
     return feature_matrix
 
 def performance(y_true, y_pred, metric="accuracy"):
