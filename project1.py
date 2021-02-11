@@ -250,6 +250,22 @@ def main():
     IMB_test_features, IMB_test_labels = get_imbalanced_test(dictionary_binary)
 
     # TODO: Questions 2, 3, 4
+    # Question 2c
+    t = get_split_binary_data()
+    unique_words = (t[0].shape)[1]
+    print("Number of unique words: ", unique_words)
+
+    words_per_review = np.sum(t[0], axis=1)
+    average = np.average(words_per_review)
+    print("Average number of non-zero features per rating: ", average)
+
+    word_count = np.sum(t[0], axis=0)
+    print(t[0][800])
+    index_max = np.argmax(word_count)
+    word_at_index = list(t[4].keys())[list(t[4].values()).index(index_max)]
+    print("Word appearing in the most number of reviews: ", word_at_index)
+
+
 
     # Read multiclass data
     # TODO: Question 5: Apply a classifier to heldout features, and then use
