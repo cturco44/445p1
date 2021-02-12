@@ -30,16 +30,18 @@ def extract_dictionary(df):
         iterating over all words in each review in the dataframe df
     """
     word_dict = {}
+    all_words = []
     for index, row in df.iterrows():
         text = row['reviewText']
         for element in text:
             text = text.replace(element, element.lower())
             if element in (string.punctuation):
                 text = text.replace(element, " ")
-    split_words = text.split()
+        split_words = text.split()
+        all_words.extend(split_words)
 
     idx = 0
-    for word in split_words:
+    for word in all_words:
         if word not in word_dict:
             word_dict[word] = idx
             idx += 1
@@ -140,7 +142,6 @@ def cv_performance(clf, X, y, k=5, metric="accuracy"):
     #to be useful
     #SKF
     skf = StratifiedKFold(n_splits=k)
-    skf.get_n_splits(X, y)
 
     #Put the performance of the model on each fold in the scores array
     scores = []
@@ -157,7 +158,7 @@ def cv_performance(clf, X, y, k=5, metric="accuracy"):
         else:
             y_pred = clf.predict(X[test_index])
             y_true = y[test_index]
-        scores.append(performance(y_true, y_pred))
+        scores.append(performance(y_true, y_pred, metric=metric))
     
     # And return the average performance across all fold splits.
     return np.array(scores).mean()
