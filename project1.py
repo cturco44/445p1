@@ -94,7 +94,9 @@ def performance(y_true, y_pred, metric="accuracy"):
     Returns:
         the performance as an np.float64
     """
-    # TODO: Implement this function
+    if metric == "auroc":
+        return metrics.roc_auc_score(y_true, y_pred)
+    
     confusion_matrix = metrics.confusion_matrix(y_true, y_pred)
     tn = confusion_matrix[0][0]
     fn = confusion_matrix[1][0]
@@ -104,19 +106,19 @@ def performance(y_true, y_pred, metric="accuracy"):
     if metric == "accuracy":
         return metrics.accuracy_score(y_true, y_pred)
     elif metric == "precision":
-        return metrics.precision_score(y_true, y_pred)
+        return metrics.precision_score(y_true, y_pred, zero_division=0)
     elif metric == "sensitivity":
-        return metrics.recall_score(y_true, y_pred)
+        return metrics.recall_score(y_true, y_pred, zero_division=0)
     elif metric == "specificity":
         if (tn + fp) == 0:
             return 0
         else:
             return tn/(tn + fp)
     elif metric == "f1-score":
-        return metrics.f1_score(y_true, y_pred)
-    # Auroc
-    else:
-        return metrics.f1_score(y_true, y_pred)
+        return metrics.f1_score(y_true, y_pred, zero_division=0)
+    
+    print("Invalid metric")
+    assert(False)
 
 def cv_performance(clf, X, y, k=5, metric="accuracy"):
     """
@@ -196,6 +198,7 @@ def select_param_linear(X, y, k=5, metric="accuracy", C_range = [], penalty='l2'
     sorted_c = {k: v for k, v in sorted(C_results.items(), key=lambda item: (item[1], -item[0]), reverse=True)}
     l = list(sorted_c.items())
     best_C_val=l[0][0]
+    print("Performance measure: ", metric, " | Best C value of: ", best_C_val, " | Performance: ", l[0][1])
     return best_C_val
 
 
@@ -290,28 +293,36 @@ def main():
     IMB_test_features, IMB_test_labels = get_imbalanced_test(dictionary_binary)
 
     # TODO: Questions 2, 3, 4
-    # Question 2c
-    t = get_split_binary_data()
-    unique_words = (t[0].shape)[1]
-    print("Number of unique words: ", unique_words)
+    # Question 1c
+    # t = get_split_binary_data()
+    # unique_words = (t[0].shape)[1]
+    # print("Number of unique words: ", unique_words)
 
-    words_per_review = np.sum(t[0], axis=1)
-    average = np.average(words_per_review)
-    print("Average number of non-zero features per rating: ", average)
+    # words_per_review = np.sum(t[0], axis=1)
+    # average = np.average(words_per_review)
+    # print("Average number of non-zero features per rating: ", average)
 
-    word_count = np.sum(t[0], axis=0)
-    print(t[0][800])
-    index_max = np.argmax(word_count)
-    word_at_index = list(t[4].keys())[list(t[4].values()).index(index_max)]
-    print("Word appearing in the most number of reviews: ", word_at_index)
+    # word_count = np.sum(t[0], axis=0)
+    # print(t[0][800])
+    # index_max = np.argmax(word_count)
+    # word_at_index = list(t[4].keys())[list(t[4].values()).index(index_max)]
+    # print("Word appearing in the most number of reviews: ", word_at_index)
 
-
+    # Question 2d
+    X_train, Y_train, X_test, Y_test, dictionary_binary = get_split_binary_data(10)
+    C_range = np.logspace(-5, 2, 8)
+    select_param_linear(X_train, Y_train, 5, 'accuracy', C_range, 'l2')
+    select_param_linear(X_train, Y_train, 5, 'f1-score', C_range, 'l2')
+    select_param_linear(X_train, Y_train, 5, 'auroc', C_range, 'l2')
+    select_param_linear(X_train, Y_train, 5, 'precision', C_range, 'l2')
+    select_param_linear(X_train, Y_train, 5, 'sensitivity', C_range, 'l2')
+    select_param_linear(X_train, Y_train, 5, 'specificity', C_range, 'l2')
 
     # Read multiclass data
     # TODO: Question 5: Apply a classifier to heldout features, and then use
     #       generate_challenge_labels to print the predicted labels
-    multiclass_features, multiclass_labels, multiclass_dictionary = get_multiclass_training_data()
-    heldout_features = get_heldout_reviews(multiclass_dictionary)
+    # multiclass_features, multiclass_labels, multiclass_dictionary = get_multiclass_training_data()
+    # heldout_features = get_heldout_reviews(multiclass_dictionary)
 
 
 if __name__ == '__main__':
