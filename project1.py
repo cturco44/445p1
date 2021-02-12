@@ -93,60 +93,28 @@ def performance(y_true, y_pred, metric="accuracy"):
         the performance as an np.float64
     """
     # TODO: Implement this function
-    tp = 0
-    fp = 0
-    fn = 0
-    tn = 0
-    for i in range(y_true.shape[0]):
-        # Upper half
-        if y_pred[i] == 1:
-            #TP
-            if y_true[i] == 1:
-                tp += 1
-            # FP
-            else:
-                fp += 1
-        # Lower half
-        else:
-            if y_true[i] == 1
-                fn += 1
-            else:
-                tn += 1
-    
+    confusion_matrix = metrics.confusion_matrix(y_true, y_pred)
+    tn = confusion_matrix[0][0]
+    fn = confusion_matrix[1][0]
+    tp = confusion_matrix[1][1]
+    fp = confusion_matrix[0][1]
+
     if metric == "accuracy":
-        return (tp + tn)/(tp + tn + fp + fn)
+        return metrics.accuracy_score(y_true, y_pred)
     elif metric == "precision":
-        return (tp)/(tp + fp)
+        return metrics.precision_score(y_true, y_pred)
     elif metric == "sensitivity":
-        return (tp) / (tp + fn)
+        return metrics.recall_score(y_true, y_pred)
     elif metric == "specificity":
-        return (tn / tn + fp)
+        if (tn + fp) == 0:
+            return 0
+        else:
+            return tn/(tn + fp)
     elif metric == "f1-score":
-        prec = (tp)/(tp + fp)
-        first = None
-        if prec == 0:
-            first = 0
-        else:
-            first = 1/prec
-        sens = (tp) / (tp + fn)
-        second = None
-        if sens == 0:
-            second = 0
-        else:
-            second = 1/sens
-        
-        overall = (first + second)/2
-        final = None
-        if overall == 0:
-            final = 0
-        else:
-            final = 1/overall
-        return final
-    
-    
-    # This is an optional but very useful function to implement.
-    # See the sklearn.metrics documentation for pointers on how to implement
-    # the requested metrics.
+        return metrics.f1_score(y_true, y_pred)
+    # Auroc
+    else:
+        return metrics.f1_score(y_true, y_pred)
 
 def cv_performance(clf, X, y, k=5, metric="accuracy"):
     """
@@ -183,10 +151,15 @@ def cv_performance(clf, X, y, k=5, metric="accuracy"):
         clf.fit(training_data_x, training_data_y)
 
         # Test the model
-        y_pred = clf.predict(X[test_index])
-        y_true = y[test_index]
-
-    #And return the average performance across all fold splits.
+        if metric == "auroc":
+            y_pred = clf.decision_function(X[test_index])
+            y_true = y[test_index]
+        else:
+            y_pred = clf.predict(X[test_index])
+            y_true = y[test_index]
+        scores.append(performance(y_true, y_pred))
+    
+    # And return the average performance across all fold splits.
     return np.array(scores).mean()
 
 def select_classifier(penalty='l2', c=1.0, degree=1, r=0.0, class_weight='balanced'):
@@ -194,9 +167,9 @@ def select_classifier(penalty='l2', c=1.0, degree=1, r=0.0, class_weight='balanc
     Return a linear svm classifier based on the given
     penalty function and regularization parameter c.
     """
-    # TODO: Optionally implement this helper function if you would like to
-    # instantiate your SVM classifiers in a single function. You will need
-    # to use the above parameters throughout the assignment.
+    # For question 2c
+    x = SVC(kernel='linear', C=c, class_weight='balanced')
+    return x
 
 def select_param_linear(X, y, k=5, metric="accuracy", C_range = [], penalty='l2'):
     """
@@ -215,10 +188,13 @@ def select_param_linear(X, y, k=5, metric="accuracy", C_range = [], penalty='l2'
         The parameter value for a linear-kernel SVM that maximizes the
         average 5-fold CV performance.
     """
-    best_C_val=0.0
-    # TODO: Implement this function
-    #HINT: You should be using your cv_performance function here
-    #to evaluate the performance of each SVM
+    C_results = {}
+    for c_value in C_range:
+        clf = select_classifier(c=c_value)
+        C_results[c_value] = cv_performance(clf, X, y, k, metric)
+    sorted_c = {k: v for k, v in sorted(C_results.items(), key=lambda item: (item[1], -item[0]), reverse=True)}
+    l = list(sorted_c.items())
+    best_C_val=l[0][0]
     return best_C_val
 
 
