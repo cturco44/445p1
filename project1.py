@@ -171,6 +171,7 @@ def select_classifier(penalty='l2', c=1.0, degree=1, r=0.0, class_weight='balanc
     penalty function and regularization parameter c.
     """
     # For question 2c
+
     x = SVC(kernel='linear', C=c, class_weight='balanced')
     return x
 
@@ -217,6 +218,15 @@ def plot_weight(X,y,penalty,C_range):
     #append to norm0 the L0-norm of the theta vector that is learned
     #when fitting an L2- or L1-penalty, degree=1 SVM to the data (X, y)
 
+    for c in C_range:
+        clf = select_classifier(c=c, penalty=penalty)
+        clf.fit(X, y)
+        total_sum = 0
+        theta = clf.coef_[0]
+        
+        l0 = np.count_nonzero(theta)
+        norm0.append(l0)
+    
 
 
     #This code will plot your L0-norm as a function of c
@@ -308,16 +318,30 @@ def main():
     # word_at_index = list(t[4].keys())[list(t[4].values()).index(index_max)]
     # print("Word appearing in the most number of reviews: ", word_at_index)
 
-    # Question 2d
-    X_train, Y_train, X_test, Y_test, dictionary_binary = get_split_binary_data(10)
-    C_range = np.logspace(-5, 2, 8)
-    select_param_linear(X_train, Y_train, 5, 'accuracy', C_range, 'l2')
-    select_param_linear(X_train, Y_train, 5, 'f1-score', C_range, 'l2')
-    select_param_linear(X_train, Y_train, 5, 'auroc', C_range, 'l2')
-    select_param_linear(X_train, Y_train, 5, 'precision', C_range, 'l2')
-    select_param_linear(X_train, Y_train, 5, 'sensitivity', C_range, 'l2')
-    select_param_linear(X_train, Y_train, 5, 'specificity', C_range, 'l2')
+    # Question 2D
+    # X_train, Y_train, X_test, Y_test, dictionary_binary = get_split_binary_data()
+    # C_range = np.array([0.001, 0.01, 0.1, 1., 10., 100., 1000.])
+    # select_param_linear(X_train, Y_train, 5, 'accuracy', C_range, 'l2')
+    # select_param_linear(X_train, Y_train, 5, 'f1-score', C_range, 'l2')
+    # select_param_linear(X_train, Y_train, 5, 'auroc', C_range, 'l2')
+    # select_param_linear(X_train, Y_train, 5, 'precision', C_range, 'l2')
+    # select_param_linear(X_train, Y_train, 5, 'sensitivity', C_range, 'l2')
+    # select_param_linear(X_train, Y_train, 5, 'specificity', C_range, 'l2')
 
+    # Question 2E
+    # X_train, Y_train, X_test, Y_test, dictionary_binary = get_split_binary_data()
+    # C_range = np.array([0.1])
+    # select_param_linear(X_train, Y_train, 5, 'accuracy', C_range, 'l2')
+    # select_param_linear(X_train, Y_train, 5, 'f1-score', C_range, 'l2')
+    # select_param_linear(X_train, Y_train, 5, 'auroc', C_range, 'l2')
+    # select_param_linear(X_train, Y_train, 5, 'precision', C_range, 'l2')
+    # select_param_linear(X_train, Y_train, 5, 'sensitivity', C_range, 'l2')
+    # select_param_linear(X_train, Y_train, 5, 'specificity', C_range, 'l2')
+
+    # Question 2F
+    X_train, Y_train, X_test, Y_test, dictionary_binary = get_split_binary_data()
+    C_range = np.array([0.001, 0.01, 0.1, 1., 10., 100., 1000.])
+    plot_weight(X_train, Y_train, penalty="l2", C_range=C_range)
     # Read multiclass data
     # TODO: Question 5: Apply a classifier to heldout features, and then use
     #       generate_challenge_labels to print the predicted labels
