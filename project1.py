@@ -93,6 +93,57 @@ def performance(y_true, y_pred, metric="accuracy"):
         the performance as an np.float64
     """
     # TODO: Implement this function
+    tp = 0
+    fp = 0
+    fn = 0
+    tn = 0
+    for i in range(y_true.shape[0]):
+        # Upper half
+        if y_pred[i] == 1:
+            #TP
+            if y_true[i] == 1:
+                tp += 1
+            # FP
+            else:
+                fp += 1
+        # Lower half
+        else:
+            if y_true[i] == 1
+                fn += 1
+            else:
+                tn += 1
+    
+    if metric == "accuracy":
+        return (tp + tn)/(tp + tn + fp + fn)
+    elif metric == "precision":
+        return (tp)/(tp + fp)
+    elif metric == "sensitivity":
+        return (tp) / (tp + fn)
+    elif metric == "specificity":
+        return (tn / tn + fp)
+    elif metric == "f1-score":
+        prec = (tp)/(tp + fp)
+        first = None
+        if prec == 0:
+            first = 0
+        else:
+            first = 1/prec
+        sens = (tp) / (tp + fn)
+        second = None
+        if sens == 0:
+            second = 0
+        else:
+            second = 1/sens
+        
+        overall = (first + second)/2
+        final = None
+        if overall == 0:
+            final = 0
+        else:
+            final = 1/overall
+        return final
+    
+    
     # This is an optional but very useful function to implement.
     # See the sklearn.metrics documentation for pointers on how to implement
     # the requested metrics.
@@ -119,9 +170,21 @@ def cv_performance(clf, X, y, k=5, metric="accuracy"):
     # TODO: Implement this function
     #HINT: You may find the StratifiedKFold from sklearn.model_selection
     #to be useful
+    #SKF
+    skf = StratifiedKFold(n_splits=k)
+    skf.get_n_splits(X, y)
 
     #Put the performance of the model on each fold in the scores array
     scores = []
+    for train_index, test_index in skf.split(X, y):
+        # Train our model
+        training_data_x = X[train_index, :]
+        training_data_y = y[train_index]
+        clf.fit(training_data_x, training_data_y)
+
+        # Test the model
+        y_pred = clf.predict(X[test_index])
+        y_true = y[test_index]
 
     #And return the average performance across all fold splits.
     return np.array(scores).mean()
