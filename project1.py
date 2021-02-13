@@ -170,9 +170,10 @@ def select_classifier(penalty='l2', c=1.0, degree=1, r=0.0, class_weight='balanc
     Return a linear svm classifier based on the given
     penalty function and regularization parameter c.
     """
+    if degree > 1:
+        return SVC(kernel='poly', degree=degree, C=c, coef0=r, class_weight=class_weight, gamma='auto')
     # For question 2c
-
-    x = SVC(kernel='linear', C=c, class_weight='balanced')
+    x = SVC(kernel='linear', C=c, class_weight=class_weight)
     return x
 
 def select_param_linear(X, y, k=5, metric="accuracy", C_range = [], penalty='l2'):
@@ -318,9 +319,16 @@ def select_param_quadratic(X, y, k=5, metric="accuracy", param_range=[]):
             the average 5-fold CV performance as a pair (C,r)
     """
     best_C_val,best_r_val = 0.0, 0.0
-    # TODO: Implement this function
-    # Hint: This will be very similar to select_param_linear, except
-    # the type of SVM model you are using will be different...
+    C_results = {}
+    for i in range(len(param_range)):
+        c_value = param_range[i][0]
+        r_value = param_range[i][1]
+        clf = select_classifier(penalty='l2', c=c_value, degree=2, r=r_value, class_weight='balanced')
+        C_results[(c_value, r_value)] = cv_performance(clf, X, y, k, metric)
+    sorted_c = {k: v for k, v in sorted(C_results.items(), key=lambda item: (item[1], -item[0][0], -item[0][1]), reverse=True)}
+    l = list(sorted_c.items())
+    best_C_val = l[0][0][0]
+    best_r_val = l[0][0][1]
     return best_C_val,best_r_val
 
 def main():
@@ -371,6 +379,8 @@ def main():
     # X_train, Y_train, X_test, Y_test, dictionary_binary = get_split_binary_data()
     # C_range = np.array([0.001, 0.01, 0.1, 1., 10., 100., 1000.])
     # plot_weight(X_train, Y_train, penalty="l2", C_range=C_range)
+
+
     # Read multiclass data
     # TODO: Question 5: Apply a classifier to heldout features, and then use
     #       generate_challenge_labels to print the predicted labels
