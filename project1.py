@@ -217,11 +217,9 @@ def plot_weight(X,y,penalty,C_range):
     #Here, for each value of c in C_range, you should
     #append to norm0 the L0-norm of the theta vector that is learned
     #when fitting an L2- or L1-penalty, degree=1 SVM to the data (X, y)
-
     for c in C_range:
         clf = select_classifier(c=c, penalty=penalty)
         clf.fit(X, y)
-        total_sum = 0
         theta = clf.coef_[0]
         
         l0 = np.count_nonzero(theta)
@@ -238,6 +236,37 @@ def plot_weight(X,y,penalty,C_range):
     plt.title('Norm-'+penalty+'_penalty.png')
     plt.savefig('Norm-'+penalty+'_penalty.png')
     plt.close()
+
+def print_bar(X,y, words):
+    clf = select_classifier(c=0.1)
+    clf.fit(X,y)
+
+    theta = clf.coef_[0]
+    theta_arg_sorted = np.argsort(theta)
+    largest_indices = theta_arg_sorted[-10:]
+    smallest_indices = theta_arg_sorted[:10]
+    keys_list = np.array(list(words))
+
+    largest_list = keys_list[largest_indices]
+    smallest_list = keys_list[smallest_indices]
+
+    y_large = theta[largest_indices]
+    y_small = theta[smallest_indices]
+
+    plt.bar(largest_list, y_large)
+    plt.xlabel('Word')
+    plt.ylabel('Coefficient')
+    plt.title('Words vs. Theta Coefficient: 10 most positive words')
+    plt.savefig('Most_positive.png')
+    plt.close()
+
+    plt.bar(smallest_list, y_small)
+    plt.xlabel('Word')
+    plt.ylabel('Coefficient')
+    plt.title('Words vs. Theta Coefficient: 10 most negative words')
+    plt.savefig('Most_negative.png')
+    plt.close()
+
 
 
 def train_perceptron(X_train, Y_train):
@@ -339,15 +368,18 @@ def main():
     # select_param_linear(X_train, Y_train, 5, 'specificity', C_range, 'l2')
 
     # Question 2F
-    X_train, Y_train, X_test, Y_test, dictionary_binary = get_split_binary_data()
-    C_range = np.array([0.001, 0.01, 0.1, 1., 10., 100., 1000.])
-    plot_weight(X_train, Y_train, penalty="l2", C_range=C_range)
+    # X_train, Y_train, X_test, Y_test, dictionary_binary = get_split_binary_data()
+    # C_range = np.array([0.001, 0.01, 0.1, 1., 10., 100., 1000.])
+    # plot_weight(X_train, Y_train, penalty="l2", C_range=C_range)
     # Read multiclass data
     # TODO: Question 5: Apply a classifier to heldout features, and then use
     #       generate_challenge_labels to print the predicted labels
     # multiclass_features, multiclass_labels, multiclass_dictionary = get_multiclass_training_data()
     # heldout_features = get_heldout_reviews(multiclass_dictionary)
+    X_train, Y_train, X_test, Y_test, dictionary_binary = get_split_binary_data(class_size=50)
+    print_bar(X_train, Y_train, dictionary_binary)
 
+    
 
 if __name__ == '__main__':
     main()
