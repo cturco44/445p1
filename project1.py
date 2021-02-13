@@ -329,6 +329,9 @@ def select_param_quadratic(X, y, k=5, metric="accuracy", param_range=[]):
     l = list(sorted_c.items())
     best_C_val = l[0][0][0]
     best_r_val = l[0][0][1]
+
+    print("Best C: ", best_C_val, " | Best r: ", best_r_val, " | Metric ", metric, ": ", l[0][1])
+    print(sorted_c)
     return best_C_val,best_r_val
 
 def main():
@@ -355,7 +358,7 @@ def main():
     # word_at_index = list(t[4].keys())[list(t[4].values()).index(index_max)]
     # print("Word appearing in the most number of reviews: ", word_at_index)
 
-    # Question 2D
+    # Question 3D
     # X_train, Y_train, X_test, Y_test, dictionary_binary = get_split_binary_data()
     # C_range = np.array([0.001, 0.01, 0.1, 1., 10., 100., 1000.])
     # select_param_linear(X_train, Y_train, 5, 'accuracy', C_range, 'l2')
@@ -375,19 +378,29 @@ def main():
     # select_param_linear(X_train, Y_train, 5, 'sensitivity', C_range, 'l2')
     # select_param_linear(X_train, Y_train, 5, 'specificity', C_range, 'l2')
 
-    # Question 2F
-    # X_train, Y_train, X_test, Y_test, dictionary_binary = get_split_binary_data()
-    # C_range = np.array([0.001, 0.01, 0.1, 1., 10., 100., 1000.])
-    # plot_weight(X_train, Y_train, penalty="l2", C_range=C_range)
+    # Question 3F
+    print("============================QUESTION 3.1 F/G============================")
+    X_train, Y_train, X_test, Y_test, dictionary_binary = get_split_binary_data()
+    C_range = np.array([0.001, 0.01, 0.1, 1., 10., 100., 1000.])
+    plot_weight(X_train, Y_train, penalty="l2", C_range=C_range)
 
+    print("============================QUESTION 3.1 H============================")
+    print_bar(X_train, Y_train, dictionary_binary)
+
+    print("============================QUESTION 3.2 B============================")
+    print("GRID SEARCH")
+    param_range = [[C, r] for C in np.logspace(-3, 3, 7) for r in np.logspace(-3, 3, 7)]
+    select_param_quadratic(X_train, Y_train, 5, metric="auroc", param_range=param_range)
+    powers = np.random.uniform(-3.0, 3.0, (25, 2))
+    tens = np.full((25,2), 10)
+    new_param_range = tens ** powers
+    select_param_quadratic(X_train, Y_train, 5, metric="auroc", param_range=new_param_range)
 
     # Read multiclass data
     # TODO: Question 5: Apply a classifier to heldout features, and then use
     #       generate_challenge_labels to print the predicted labels
     # multiclass_features, multiclass_labels, multiclass_dictionary = get_multiclass_training_data()
     # heldout_features = get_heldout_reviews(multiclass_dictionary)
-    X_train, Y_train, X_test, Y_test, dictionary_binary = get_split_binary_data(class_size=50)
-    print_bar(X_train, Y_train, dictionary_binary)
 
     
 
