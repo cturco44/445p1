@@ -170,6 +170,8 @@ def select_classifier(penalty='l2', c=1.0, degree=1, r=0.0, class_weight='balanc
     Return a linear svm classifier based on the given
     penalty function and regularization parameter c.
     """
+    if penalty == 'l1':
+        return LinearSVC(penalty='l1', dual=False, C=c, class_weight='balanced')
     if degree > 1:
         return SVC(kernel='poly', degree=degree, C=c, coef0=r, class_weight=class_weight, gamma='auto')
     # For question 2c
@@ -195,7 +197,7 @@ def select_param_linear(X, y, k=5, metric="accuracy", C_range = [], penalty='l2'
     """
     C_results = {}
     for c_value in C_range:
-        clf = select_classifier(c=c_value)
+        clf = select_classifier(penalty=penalty, c=c_value)
         C_results[c_value] = cv_performance(clf, X, y, k, metric)
     sorted_c = {k: v for k, v in sorted(C_results.items(), key=lambda item: (item[1], -item[0]), reverse=True)}
     l = list(sorted_c.items())
@@ -269,7 +271,20 @@ def print_bar(X,y, words):
     plt.title('Words vs. Theta Coefficient: 10 most negative words')
     plt.savefig('Most_negative.png')
     plt.close()
-
+def sign(value):
+    if value > 1:
+        return 1
+    elif value < 1:
+        return -1
+    else:
+        assert(False)
+def predict_perceptron(X_test, theta, b):
+    dot = np.dot(X_test, theta)
+    x = np.array([b])
+    final = dot + x
+    vectorized_func = np.vectorize(sign)
+    y_pred = vectorized_func(final)
+    return y_pred
 
 
 def train_perceptron(X_train, Y_train):
@@ -386,8 +401,8 @@ def main():
     # C_range = np.array([0.001, 0.01, 0.1, 1., 10., 100., 1000.])
     # plot_weight(X_train, Y_train, penalty="l2", C_range=C_range)
 
-    print("============================QUESTION 3.1 H============================")
-    print_bar(X_train, Y_train, dictionary_binary)
+    # print("============================QUESTION 3.1 H============================")
+    # print_bar(X_train, Y_train, dictionary_binary)
 
     # print("============================QUESTION 3.2 B============================")
     # print("GRID SEARCH")
@@ -398,11 +413,31 @@ def main():
     # new_param_range = tens ** powers
     # select_param_quadratic(X_train, Y_train, 5, metric="auroc", param_range=new_param_range)
 
+    # Question 3.4 a
+    # print("============================QUESTION 3.4 A ============================")
+    # X_train, Y_train, X_test, Y_test, dictionary_binary = get_split_binary_data()
+    # C_range = np.array([0.001, 0.01, 0.1, 1.])
+    # select_param_linear(X_train, Y_train, 5, 'auroc', C_range, 'l1')
+
+    # print("============================QUESTION 3.4 B ============================")
+    # C_range = np.array([0.001, 0.01, 0.1, 1.])
+    # plot_weight(X_train, Y_train, 'l1', C_range)
+
+    print("============================QUESTION 3.5 A ============================")
+    X_train, Y_train, X_test, Y_test, dictionary_binary = get_split_binary_data()
+    theta, b = train_perceptron(X_train, Y_train)
+    y_pred = predict_perceptron(X_test, theta, b)
+    acc = performance(Y_test, y_pred, "accuracy")
+    print("Accuracy: ", acc)
+
+    
+
     # Read multiclass data
     # TODO: Question 5: Apply a classifier to heldout features, and then use
     #       generate_challenge_labels to print the predicted labels
     # multiclass_features, multiclass_labels, multiclass_dictionary = get_multiclass_training_data()
     # heldout_features = get_heldout_reviews(multiclass_dictionary)
+
 
     
 
