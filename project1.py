@@ -5,19 +5,25 @@ import pandas as pd
 import numpy as np
 import itertools
 import string
+import nltk
 
 from sklearn.svm import SVC, LinearSVC
 from sklearn.model_selection import StratifiedKFold
 from sklearn import metrics
+from sklearn.feature_extraction.text import TfidfVectorizer
 from matplotlib import pyplot as plt
+from nltk.corpus import wordnet
+from nltk import WordNetLemmatizer
 
 from helper import *
+
 def clean_string(text):
     for element in text:
         text = text.replace(element, element.lower())
         if element in (string.punctuation):
             text = text.replace(element, " ")
     return text.split()
+
 def extract_dictionary(df):
     """
     Reads a pandas dataframe, and returns a dictionary of distinct words
@@ -48,7 +54,16 @@ def extract_dictionary(df):
 
     return word_dict
 
+# NOTE: This function for lematization is copied from https://www.machinelearningplus.com/nlp/lemmatization-examples-python/
+def get_wordnet_pos(word):
+    """Map POS tag to first character lemmatize() accepts"""
+    tag = nltk.pos_tag([word])[0][1][0].upper()
+    tag_dict = {"J": wordnet.ADJ,
+                "N": wordnet.NOUN,
+                "V": wordnet.VERB,
+                "R": wordnet.ADV}
 
+    return tag_dict.get(tag, wordnet.NOUN)
 def generate_feature_matrix(df, word_dict):
     """
     Reads a dataframe and the dictionary of unique words
@@ -80,6 +95,46 @@ def generate_feature_matrix(df, word_dict):
         idx += 1
 
     return feature_matrix
+
+def generate_feature_matrix_challenge(corpus_train, corpus_test):
+    """
+    Reads a dataframe and the corpus of all lematized words
+    to generate a tf-idf matrix 
+    Input:
+        df: dataframe that has the ratings and labels
+        corpus: corpus of all reviews
+    Returns:
+        a feature matrix of dimension (# of reviews, # of distinct words in corpus)
+    """
+    vectorizer = TfidfVectorizer()
+    X_train = vectorizer.fit_transform(corpus_train)
+    X_test = vectorizer.transform(corpus_test)
+
+    return (X_train, X_test)
+
+def extract_dictionary_challenge(df):
+    """
+    Reads a pandas dataframe, and returns a corpus consisting of each review with its lemmatized words
+    Input:
+        df: dataframe/output of load_data()
+    Returns:
+        a corpus consisting of each review with its lemmatized words
+    """
+    word_dict = {}
+    corpus = []
+    lemmatizer = WordNetLemmatizer()
+    for index, row in df.iterrows():
+        text = row['reviewText']
+        for element in text:
+            text = text.replace(element, element.lower())
+            if element in (string.punctuation):
+                text = text.replace(element, " ")
+
+        # NOTE: This line of code for lemmatization is copied from https://www.machinelearningplus.com/nlp/lemmatization-examples-python/
+        lemmatized_text = [lemmatizer.lemmatize(w, get_wordnet_pos(w)) for w in nltk.word_tokenize(text)]
+        final_string = " ".join(lemmatized_text)
+        corpus.append(final_string)
+    return corpus
 
 def performance(y_true, y_pred, metric="accuracy"):
     """
@@ -351,6 +406,25 @@ def select_param_quadratic(X, y, k=5, metric="accuracy", param_range=[]):
     print(sorted_c)
     return best_C_val,best_r_val
 
+def performance_challenge(y_true, y_pred, ignore):
+    """
+    Calculates the accuracy metric as evaluated on the true labels
+    y_true versus the predicted labels y_pred. Ignores any results with label ignore
+    Input:
+        y_true: (n,) array containing known labels
+        y_pred: (n,) array containing predicted scores
+        metric: string specifying the performance metric (default='accuracy'
+                 other options: 'f1-score', 'auroc', 'precision', 'sensitivity',
+                 and 'specificity')
+    Returns:
+        the performance as an np.float64
+    """
+    y_true_ignore = y_true[np.argwhere(y_true != ignore)]
+    y_pred_ignore = p_pred[np.argwhere(y_true != ignore)]
+    confusion_matrix = metrics.confusion_matrix(y_true_ignore, y_pred_ignore)
+    
+    return metrics.accuracy_score(y_true, y_pred)
+
 def main():
     # Read binary data
     # NOTE: READING IN THE DATA WILL NOT WORK UNTIL YOU HAVE FINISHED
@@ -525,43 +599,48 @@ def main():
     # print("Sensitivity: ", sens)
     # print("Specificity: ", spec)
 
-    print("============================QUESTION 4.4 ============================")
-    X_train, Y_train, X_test, Y_test, dictionary_binary = get_split_binary_data()
-    IMB_features, IMB_labels = get_imbalanced_data(dictionary_binary)
-    IMB_test_features, IMB_test_labels = get_imbalanced_test(dictionary_binary)
+    # print("============================QUESTION 4.4 ============================")
+    # X_train, Y_train, X_test, Y_test, dictionary_binary = get_split_binary_data()
+    # IMB_features, IMB_labels = get_imbalanced_data(dictionary_binary)
+    # IMB_test_features, IMB_test_labels = get_imbalanced_test(dictionary_binary)
 
-    class_weight = {-1: 0.54, 1: 0.46}
-    clf = select_classifier(c=0.1, class_weight=class_weight)
+    # class_weight = {-1: 0.54, 1: 0.46}
+    # clf = select_classifier(c=0.1, class_weight=class_weight)
 
-    plt.figure(0).clf()
-    clf.fit(IMB_features, IMB_labels)
-    pred = clf.decision_function(IMB_test_features)
-    fpr, tpr, thresh = metrics.roc_curve(IMB_test_labels, pred)
-    auc = metrics.roc_auc_score(IMB_test_labels, pred)
-    plt.plot(fpr,tpr,label="F1-score optimized weights "+str(auc))
+    # plt.figure(0).clf()
+    # clf.fit(IMB_features, IMB_labels)
+    # pred = clf.decision_function(IMB_test_features)
+    # fpr, tpr, thresh = metrics.roc_curve(IMB_test_labels, pred)
+    # auc = metrics.roc_auc_score(IMB_test_labels, pred)
+    # plt.plot(fpr,tpr,label="F1-score optimized weights "+str(auc))
 
-    clf2 = select_classifier(c=0.1, class_weight={-1:1, 1:1})
-    clf2.fit(IMB_features, IMB_labels)
-    pred2 = clf2.decision_function(IMB_test_features)
-    fpr, tpr, thresh = metrics.roc_curve(IMB_test_labels, pred2)
-    auc = metrics.roc_auc_score(IMB_test_labels, pred2)
-    plt.plot(fpr,tpr,label="Balanced weights "+str(auc))
+    # clf2 = select_classifier(c=0.1, class_weight={-1:1, 1:1})
+    # clf2.fit(IMB_features, IMB_labels)
+    # pred2 = clf2.decision_function(IMB_test_features)
+    # fpr, tpr, thresh = metrics.roc_curve(IMB_test_labels, pred2)
+    # auc = metrics.roc_auc_score(IMB_test_labels, pred2)
+    # plt.plot(fpr,tpr,label="Balanced weights "+str(auc))
 
-    plt.legend(loc=0)
-    plt.title('ROC Curve')
-    plt.xlabel("False Positive Rate")
-    plt.ylabel("False Negative Rate")
+    # plt.legend(loc=0)
+    # plt.title('ROC Curve')
+    # plt.xlabel("False Positive Rate")
+    # plt.ylabel("False Negative Rate")
 
 
-    plt.savefig('Auc_figure.png')
-    plt.close()
+    # plt.savefig('Auc_figure.png')
+    # plt.close()
     
 
     # Read multiclass data
     # TODO: Question 5: Apply a classifier to heldout features, and then use
     #       generate_challenge_labels to print the predicted labels
-    # multiclass_features, multiclass_labels, multiclass_dictionary = get_multiclass_training_data()
-    # heldout_features = get_heldout_reviews(multiclass_dictionary)
+    # X_train, Y_train, X_test = get_multiclass_training_data(class_size=50, get_test=False)
+    # select_param_linear(X_train, Y_train, 5, 'accuracy', C_range, 'l2')
+    # print("hello")
+    y_true = [0, 1, -1, 0, 1, 1]
+    y_pred = [1, 1, -1, -1, 1, 1]
+    performance_challenge(y_true, y_pred, 0)
+
 
 
     

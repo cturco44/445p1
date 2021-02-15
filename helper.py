@@ -4,6 +4,7 @@
 import pandas as pd
 import numpy as np
 
+from sklearn.feature_extraction.text import TfidfVectorizer
 import project1
 
 
@@ -93,7 +94,7 @@ def get_imbalanced_test(dictionary, positive_class_size=200, ratio=0.25):
     return (X_test, Y_test)
 
 
-def get_multiclass_training_data(class_size=750):
+def get_multiclass_training_data(class_size=750, get_test=True):
     """
     Reads in the data from data/dataset.csv and returns it using
     extract_dictionary and generate_feature_matrix as a tuple
@@ -111,11 +112,19 @@ def get_multiclass_training_data(class_size=750):
     positiveDF = dataframe[dataframe['label'] == 1].copy()
     negativeDF = dataframe[dataframe['label'] == -1].copy()
     X_train = pd.concat([positiveDF[:class_size], negativeDF[:class_size], neutralDF[:class_size]]).reset_index(drop=True).copy()
-    dictionary = project1.extract_dictionary(X_train)
+    corpus1 = project1.extract_dictionary_challenge(X_train)
     Y_train = X_train['label'].values.copy()
-    X_train = project1.generate_feature_matrix(X_train, dictionary)
 
-    return (X_train, Y_train, dictionary)
+    if get_test:
+        fname = "data/heldout.csv"
+        dataframe = load_data(fname)
+        corpus2 = project1.extract_dictionary_challenge(dataframe)
+    else:
+        corpus2 = ["hello there"]
+
+    X_train, X_test = project1.generate_feature_matrix_challenge(corpus1, corpus2)
+
+    return (X_train, Y_train, X_test)
 
 
 def get_heldout_reviews(dictionary):
