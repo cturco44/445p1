@@ -14,6 +14,10 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from matplotlib import pyplot as plt
 from nltk.corpus import wordnet
 from nltk import WordNetLemmatizer
+from sklearn.multiclass import OneVsOneClassifier
+from sklearn.model_selection import GridSearchCV
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
 
 from helper import *
 
@@ -406,24 +410,6 @@ def select_param_quadratic(X, y, k=5, metric="accuracy", param_range=[]):
     print(sorted_c)
     return best_C_val,best_r_val
 
-def performance_challenge(y_true, y_pred, ignore):
-    """
-    Calculates the accuracy metric as evaluated on the true labels
-    y_true versus the predicted labels y_pred. Ignores any results with label ignore
-    Input:
-        y_true: (n,) array containing known labels
-        y_pred: (n,) array containing predicted scores
-        metric: string specifying the performance metric (default='accuracy'
-                 other options: 'f1-score', 'auroc', 'precision', 'sensitivity',
-                 and 'specificity')
-    Returns:
-        the performance as an np.float64
-    """
-    y_true_ignore = y_true[np.argwhere(y_true != ignore)]
-    y_pred_ignore = p_pred[np.argwhere(y_true != ignore)]
-    confusion_matrix = metrics.confusion_matrix(y_true_ignore, y_pred_ignore)
-    
-    return metrics.accuracy_score(y_true, y_pred)
 
 def main():
     # Read binary data
@@ -634,12 +620,25 @@ def main():
     # Read multiclass data
     # TODO: Question 5: Apply a classifier to heldout features, and then use
     #       generate_challenge_labels to print the predicted labels
-    # X_train, Y_train, X_test = get_multiclass_training_data(class_size=50, get_test=False)
-    # select_param_linear(X_train, Y_train, 5, 'accuracy', C_range, 'l2')
-    # print("hello")
-    y_true = [0, 1, -1, 0, 1, 1]
-    y_pred = [1, 1, -1, -1, 1, 1]
-    performance_challenge(y_true, y_pred, 0)
+    X_train, Y_train, X_test = get_multiclass_training_data(class_size=100, get_test=False)
+    starting_model = OneVsOneClassifier(select_classifier(degree=2))
+
+    pipe = make_pipeline(StandardScaler(), SVC(kernel="poly", degree=3, C=5, coef0=1))
+    pipe.fit(X_train, Y_train)
+
+    plot_svm(pipe, X_train)
+    param_grid = {'estimator__C': [0.001, 0.01, 0.1, 1, 10, 100, 1000]}
+    model = GridSearchCV(estimator=starting_model, param_grid=param_grid, scoring="accuracy", return_train_score=True)
+    model.fit(X_train, Y_train)
+    print("hello")
+    print(model.best_score_)
+    print(model.cv_results_)
+    print(model.grid_scores_)
+    print("hello")
+
+
+
+    
 
 
 
