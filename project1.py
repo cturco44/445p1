@@ -355,9 +355,9 @@ def main():
     # Read binary data
     # NOTE: READING IN THE DATA WILL NOT WORK UNTIL YOU HAVE FINISHED
     #       IMPLEMENTING generate_feature_matrix AND extract_dictionary
-    X_train, Y_train, X_test, Y_test, dictionary_binary = get_split_binary_data()
-    IMB_features, IMB_labels = get_imbalanced_data(dictionary_binary)
-    IMB_test_features, IMB_test_labels = get_imbalanced_test(dictionary_binary)
+    # X_train, Y_train, X_test, Y_test, dictionary_binary = get_split_binary_data()
+    # IMB_features, IMB_labels = get_imbalanced_data(dictionary_binary)
+    # IMB_test_features, IMB_test_labels = get_imbalanced_test(dictionary_binary)
 
     # TODO: Questions 2, 3, 4
     # Question 1c
@@ -388,12 +388,22 @@ def main():
     # Question 2E
     # X_train, Y_train, X_test, Y_test, dictionary_binary = get_split_binary_data()
     # C_range = np.array([0.1])
-    # select_param_linear(X_train, Y_train, 5, 'accuracy', C_range, 'l2')
-    # select_param_linear(X_train, Y_train, 5, 'f1-score', C_range, 'l2')
-    # select_param_linear(X_train, Y_train, 5, 'auroc', C_range, 'l2')
-    # select_param_linear(X_train, Y_train, 5, 'precision', C_range, 'l2')
-    # select_param_linear(X_train, Y_train, 5, 'sensitivity', C_range, 'l2')
-    # select_param_linear(X_train, Y_train, 5, 'specificity', C_range, 'l2')
+    # clf = select_classifier(c=0.1)
+    # clf.fit(X_train, Y_train)
+    # y_pred = clf.predict(X_test)
+    # acc = performance(Y_test, y_pred, "accuracy")
+    # f1 = performance(Y_test, y_pred, "f1-score")
+    # prec = performance(Y_test, y_pred, "precision")
+    # sens = performance(Y_test, y_pred, "sensitivity")
+    # spec = performance(Y_test, y_pred, "specificity")
+    # y_pred = clf.decision_function(X_test)
+    # auroc = performance(Y_test, y_pred, "auroc")
+    # print("Accuracy: ", acc)
+    # print("F1-score: ", f1)
+    # print("Auroc: ", auroc)
+    # print("Precision: ", prec)
+    # print("Sensitivity: ", sens)
+    # print("Specificity: ", spec)
 
     # Question 3F
     # print("============================QUESTION 3.1 F/G============================")
@@ -406,6 +416,7 @@ def main():
 
     # print("============================QUESTION 3.2 B============================")
     # print("GRID SEARCH")
+    # X_train, Y_train, X_test, Y_test, dictionary_binary = get_split_binary_data(class_size=50)
     # param_range = [[C, r] for C in np.logspace(-3, 3, 7) for r in np.logspace(-3, 3, 7)]
     # select_param_quadratic(X_train, Y_train, 5, metric="auroc", param_range=param_range)
     # powers = np.random.uniform(-3.0, 3.0, (25, 2))
@@ -423,13 +434,127 @@ def main():
     # C_range = np.array([0.001, 0.01, 0.1, 1.])
     # plot_weight(X_train, Y_train, 'l1', C_range)
 
-    print("============================QUESTION 3.5 A ============================")
-    X_train, Y_train, X_test, Y_test, dictionary_binary = get_split_binary_data()
-    theta, b = train_perceptron(X_train, Y_train)
-    y_pred = predict_perceptron(X_test, theta, b)
-    acc = performance(Y_test, y_pred, "accuracy")
-    print("Accuracy: ", acc)
+    # print("============================QUESTION 3.5 A ============================")
+    # X_train, Y_train, X_test, Y_test, dictionary_binary = get_split_binary_data()
+    # theta, b = train_perceptron(X_train, Y_train)
+    # y_pred = predict_perceptron(X_test, theta, b)
+    # acc = performance(Y_test, y_pred, "accuracy")
+    # print("Accuracy: ", acc)
 
+    # print("============================QUESTION 4.1 B/C ============================")
+    # X_train, Y_train, X_test, Y_test, dictionary_binary = get_split_binary_data()
+    # class_weight = {-1: 1, 1: 10}
+    # clf = select_classifier(c=0.1, class_weight=class_weight)
+    # clf.fit(X_train, Y_train)
+    # y_pred = clf.predict(X_test)
+    # acc = performance(Y_test, y_pred, "accuracy")
+    # f1 = performance(Y_test, y_pred, "f1-score")
+    # prec = performance(Y_test, y_pred, "precision")
+    # sens = performance(Y_test, y_pred, "sensitivity")
+    # spec = performance(Y_test, y_pred, "specificity")
+    # y_pred = clf.decision_function(X_test)
+    # auroc = performance(Y_test, y_pred, "auroc")
+    # print("Accuracy: ", acc)
+    # print("F1-score: ", f1)
+    # print("Auroc: ", auroc)
+    # print("Precision: ", prec)
+    # print("Sensitivity: ", sens)
+    # print("Specificity: ", spec)
+
+    # print("============================QUESTION 4.2 A/B ============================")
+    # X_train, Y_train, X_test, Y_test, dictionary_binary = get_split_binary_data()
+    # IMB_features, IMB_labels = get_imbalanced_data(dictionary_binary)
+    # IMB_test_features, IMB_test_labels = get_imbalanced_test(dictionary_binary)
+
+    # class_weight = {-1: 1, 1: 1}
+    # clf = select_classifier(c=0.1, class_weight=class_weight)
+    # clf.fit(IMB_features, IMB_labels)
+    # y_pred = clf.predict(IMB_test_features)
+    # acc = performance(IMB_test_labels, y_pred, "accuracy")
+    # f1 = performance(IMB_test_labels, y_pred, "f1-score")
+    # prec = performance(IMB_test_labels, y_pred, "precision")
+    # sens = performance(IMB_test_labels, y_pred, "sensitivity")
+    # spec = performance(IMB_test_labels, y_pred, "specificity")
+    # y_pred = clf.decision_function(IMB_test_features)
+    # auroc = performance(IMB_test_labels, y_pred, "auroc")
+    # print("Accuracy: ", acc)
+    # print("F1-score: ", f1)
+    # print("Auroc: ", auroc)
+    # print("Precision: ", prec)
+    # print("Sensitivity: ", sens)
+    # print("Specificity: ", spec)
+
+    # print("============================QUESTION 4.3 A ============================")
+    # X_train, Y_train, X_test, Y_test, dictionary_binary = get_split_binary_data()
+    # IMB_features, IMB_labels = get_imbalanced_data(dictionary_binary)
+    # IMB_test_features, IMB_test_labels = get_imbalanced_test(dictionary_binary)
+    # weight_class_range = [w1 for w1 in np.linspace(0,1,100,endpoint=False)]
+    # max_performance = 0
+    # results = {}
+    # for w1_value in weight_class_range:
+    #     if(w1_value != 0):
+    #         class_weight = {-1: w1_value, 1: 1 - w1_value}
+    #         clf = select_classifier(c=0.1, class_weight=class_weight)
+    #         results[w1_value] = cv_performance(clf, IMB_features, IMB_labels, 5, "f1-score")
+    # a = {k: v for k, v in sorted(results.items(), key=lambda item: (item[1], -item[0]), reverse=True)}
+    # l = list(a.items())
+    # best_w1_val=l[0][0]
+    # print("Performance measure: auroc ", "| Best w1 value of: ", best_w1_val, " | Performance: ", l[0][1])
+    # # print(a)
+
+    # print("============================QUESTION 4.3 C ============================")
+    # X_train, Y_train, X_test, Y_test, dictionary_binary = get_split_binary_data()
+    # IMB_features, IMB_labels = get_imbalanced_data(dictionary_binary)
+    # IMB_test_features, IMB_test_labels = get_imbalanced_test(dictionary_binary)
+
+    # class_weight = {-1: 0.54, 1: 0.46}
+    # clf = select_classifier(c=0.1, class_weight=class_weight)
+    # clf.fit(IMB_features, IMB_labels)
+    # y_pred = clf.predict(IMB_test_features)
+    # acc = performance(IMB_test_labels, y_pred, "accuracy")
+    # f1 = performance(IMB_test_labels, y_pred, "f1-score")
+    # prec = performance(IMB_test_labels, y_pred, "precision")
+    # sens = performance(IMB_test_labels, y_pred, "sensitivity")
+    # spec = performance(IMB_test_labels, y_pred, "specificity")
+    # y_pred = clf.decision_function(IMB_test_features)
+    # auroc = performance(IMB_test_labels, y_pred, "auroc")
+    # print("Accuracy: ", acc)
+    # print("F1-score: ", f1)
+    # print("Auroc: ", auroc)
+    # print("Precision: ", prec)
+    # print("Sensitivity: ", sens)
+    # print("Specificity: ", spec)
+
+    print("============================QUESTION 4.4 ============================")
+    X_train, Y_train, X_test, Y_test, dictionary_binary = get_split_binary_data()
+    IMB_features, IMB_labels = get_imbalanced_data(dictionary_binary)
+    IMB_test_features, IMB_test_labels = get_imbalanced_test(dictionary_binary)
+
+    class_weight = {-1: 0.54, 1: 0.46}
+    clf = select_classifier(c=0.1, class_weight=class_weight)
+
+    plt.figure(0).clf()
+    clf.fit(IMB_features, IMB_labels)
+    pred = clf.decision_function(IMB_test_features)
+    fpr, tpr, thresh = metrics.roc_curve(IMB_test_labels, pred)
+    auc = metrics.roc_auc_score(IMB_test_labels, pred)
+    plt.plot(fpr,tpr,label="F1-score optimized weights "+str(auc))
+
+    clf2 = select_classifier(c=0.1, class_weight={-1:1, 1:1})
+    clf2.fit(IMB_features, IMB_labels)
+    pred2 = clf2.decision_function(IMB_test_features)
+    fpr, tpr, thresh = metrics.roc_curve(IMB_test_labels, pred2)
+    auc = metrics.roc_auc_score(IMB_test_labels, pred2)
+    plt.plot(fpr,tpr,label="Balanced weights "+str(auc))
+
+    plt.legend(loc=0)
+    plt.title('ROC Curve')
+    plt.xlabel("False Positive Rate")
+    plt.ylabel("False Negative Rate")
+
+
+    plt.savefig('Auc_figure.png')
+    plt.close()
     
 
     # Read multiclass data
